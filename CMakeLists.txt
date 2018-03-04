@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(VSTSDK_PATH "/Library/VST_SDK/VST3_SDK" CACHE PATH "Path to VST3 SDK")
 
 # uncomment to build as VST2.4
+# so far been unsuccessful in any attempt to get this to work though...
 #set(SMTG_CREATE_VST2_VERSION "Use VST2" ON)
 
 # compiler flags
@@ -76,6 +77,11 @@ set(VSTSDK_PLUGIN_SOURCE
   ${VSTSDK_PATH}/pluginterfaces/vst/vstpresetkeys.h
 )
 
+###################
+# Project sources #
+###################
+
+# VST2.4 wrapper
 if (SMTG_CREATE_VST2_VERSION)
     set(vstsid_vst2_sources
         ${SDK_ROOT}/public.sdk/source/common/memorystream.cpp
@@ -90,10 +96,6 @@ if (SMTG_CREATE_VST2_VERSION)
         src/vstentry_vst2.cpp
     )
 endif()
-
-###################
-# Project sources #
-###################
 
 set(vstsid_sources
     src/global.h
@@ -114,7 +116,9 @@ set(vstsid_sources
 
 # VST2 is only defined for macOS and Windows
 if(MAC OR WIN)
-    set(vstsid_sources ${vstsid_sources} ${vstsid_vst2_sources})
+    if (SMTG_CREATE_VST2_VERSION)
+        set(vstsid_sources ${vstsid_sources} ${vstsid_vst2_sources})
+    endif()
 endif()
 
 set(target vstsid)
@@ -133,22 +137,11 @@ target_link_libraries(${target} PRIVATE ${VSTSDK_PATH}/build/lib/libvstgui_suppo
 target_link_libraries(${target} PRIVATE ${VSTSDK_PATH}/build/lib/libvstgui_uidescription.a)
 target_link_libraries(${target} PRIVATE ${VSTSDK_PATH}/build/lib/libvstgui.a)
 
-if (SMTG_CREATE_VST2_VERSION)
-    message(STATUS "SMTG_CREATE_VST2_VERSION is set. A VST 2 version of the plug-in will be created (just rename the generated file from .vst3 to .vst).")
-    if(XCODE)
-        # fix missing VSTPluginMain symbol when also building VST 2 version
-        set_target_properties(${target} PROPERTIES XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "")
-    endif()
-    if (WIN)
-        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-    endif()
-endif()
-
 ###############################
 # PLATFORM SPECIFIC LIBRARIES #
 ###############################
 
-IF (APPLE)
+if (APPLE)
     if(XCODE)
         target_link_libraries(${target} PRIVATE "-framework Cocoa" "-framework OpenGL" "-framework Accelerate" "-framework QuartzCore" "-framework Carbon")
     else()
@@ -161,7 +154,7 @@ IF (APPLE)
         find_library(EXPAT Expat)
         target_link_libraries(${target} PRIVATE ${COREFOUNDATION_FRAMEWORK} ${COCOA_FRAMEWORK} ${OPENGL_FRAMEWORK} ${ACCELERATE_FRAMEWORK} ${QUARTZCORE_FRAMEWORK} ${CARBON_FRAMEWORK} ${EXPAT})
     endif()
-ENDIF (APPLE)
+endif (APPLE)
 
 #############
 # Resources #
@@ -195,6 +188,18 @@ if(MAC)
     smtg_set_bundle(${target} INFOPLIST "${CMAKE_CURRENT_SOURCE_DIR}/resources/osx/Info.plist" PREPROCESS)
 elseif(WIN)
     target_sources(${target} PRIVATE resource/vstsid.rc)
+endif()
+
+
+if (SMTG_CREATE_VST2_VERSION)
+    message(STATUS "SMTG_CREATE_VST2_VERSION is set. A VST 2 version of the plug-in will be created (just rename the generated file from .vst3 to .vst).")
+    if(XCODE)
+        # fix missing VSTPluginMain symbol when also building VST 2 version
+        set_target_properties(${target} PROPERTIES XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "")
+    endif()
+    if (WIN)
+        add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    endif()
 endif()
 
 ####################

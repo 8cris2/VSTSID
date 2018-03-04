@@ -1,0 +1,24 @@
+//------------------------------------------------------------------------
+// Project     : VSTSID
+//
+// Category    : Helpers
+// Filename    : vstsid.xcconfig
+// Created by  : Igorski, 2018/03/03
+// Description : VSTSID VST 3 -> AU Wrapper
+//------------------------------------------------------------------------
+
+#include "../../config/ausdkpath"   // AUWRAPPER_CHANGE
+
+PRODUCT_NAME = vstsid               // AUWRAPPER_CHANGE
+WRAPPER_EXTENSION = component
+
+STRIP_STYLE = non-global
+OTHER_LDFLAGS = -all_load
+GENERATE_MASTER_OBJECT_FILE = YES
+KEEP_PRIVATE_EXTERNS = YES
+SEPARATE_SYMBOL_EDIT = YES
+OTHER_REZFLAGS = -d ppc_$ppc -d i386_$i386 -d ppc64_$ppc64 -d x86_64_$x86_64 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I /$DEVELOPER_DIR/Examples/CoreAudio/AudioUnits/AUPublic/AUBase -I /$DEVELOPER_DIR/Extras/CoreAudio/AudioUnits/AUPublic/AUBase -I $(CUSTOM_AU_SDK_PATH)/AudioUnits/AUPublic/AUBase
+INFOPLIST_PREPROCESS = YES
+PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym
+INSTALL_PATH = /Library/Audio/Plug-Ins/Components/

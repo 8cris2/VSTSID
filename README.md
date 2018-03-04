@@ -6,12 +6,7 @@ synthesizer.
 ## On compatibility
 
 VST3.0 is great and all, but support across DAW's is poor (shout out to Bitwig Studio for being awesome).
-You can however build this plugin as a VST2.4 plugin and enjoy it on a wider range of host platforms.
-Simply uncomment the following line in _CMakeLists.txt_:
-
-    set(SMTG_CREATE_VST2_VERSION "Use VST2" ON)
-
-And rename the plugin extension from _.vst3_ to _.vst_.
+For OS X users, this plugin can also be built as an (v2) Audio Unit (see below).
 
 Depending on your host software having 32-bit or 64-bit support, you can best compile for a
 wider range of architectures, e.g. by replacing all _cmake_ invocations listed here like so:
@@ -25,8 +20,8 @@ after which you can use _make_ to build the application.
 
 The project has been developed against the VST 3.6.9 Audio Plug-Ins SDK
 on OS X (see dependencies listed below). It should work completely via
-CLI without requiring XCode. Windows and Linux builds are provided, but are as
-yet untested (see _CMakeLists.txt_).
+CLI without requiring XCode (apart from the Audio Unit build).
+Windows and Linux builds are also provided, but are as yet untested (see _CMakeLists.txt_).
 
 ### Environment setup
 
@@ -50,7 +45,7 @@ Execute from the Steinberg VST SDK root:
 The result being that in _{VSTSDK_PATH}/VST3_SDK/build/lib_ all
 Steinberg VST libraries are prebuilt.
 
-### Building the VSTSID plugin
+### Building VSTSID as a VST3 plugin
 
 Run CMake to generate VSTSID's Makefile for your environment, e.g.:
 
@@ -71,5 +66,22 @@ VST host / DAW of your choice.
 When debugging, you can also choose to run the plugin against Steinbergs validator
 and editor host utilities:
 
-    {VSTSDK_PATH}/build/bin/validator build/VST3/vstsid.vst
-    {VSTSDK_PATH}/build/bin/editorhost build/VST3/vstsid.vst
+    {VSTSDK_PATH}/build/bin/validator  build/VST3/vstsid.vst3
+    {VSTSDK_PATH}/build/bin/editorhost build/VST3/vstsid.vst3
+    
+## Building VSTSID as an Audio Unit
+
+To build VSTSID as an AU plugin for OS X, first build the _auwrapper_-project in the VST SDK (you can
+find it in _public.sdk/source/vst/auwrapper/auwrapper.xcodeproj_).
+
+All Audio Unit related code in this repository resides in the _./au/_-folder.
+
+Update the Library search path so that it points to the directory where _libauwrapper.a_ exists
+Search in the _./au/_-folder for AUWRAPPER_CHANGE and change the settings accordingly in the following files:
+
+ * _audiounitconfig.h_
+ * _Info.plist_
+ * _the "Make Links Script"_ for easier debugging/development
+
+Build. For the release version, you must place a copy of the VST 3 build in the resource folder of the bundle
+named _"plugin.vst3"_.

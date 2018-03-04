@@ -1,0 +1,11 @@
+//------------------------------------------------------------------------
+// Project     : VSTSID
+//
+// Category    : Helpers
+// Filename    : vstsid_release.xcconfig
+// Created by  : Igorski, 2018/03/03
+// Description : VSTSID VST 3 -> AU Wrapper
+//------------------------------------------------------------------------
+
+#include "../../../../../base/mac/config/release" // AUWRAPPER_CHANGE (relative to Steinberg VST SDK location)
+#include "vstsid"
